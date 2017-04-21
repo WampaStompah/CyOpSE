@@ -5,8 +5,8 @@ user: cyopse
 pass: capstone
 
 Dependencies:
+sudo apt-get install cmake make gcc g++ flex git bison libpcap-dev libssl-dev python-dev swig zlib1g-dev
 Install Bro
-Install Python 2.7
 Copy broctl to bin
 
 Modify:

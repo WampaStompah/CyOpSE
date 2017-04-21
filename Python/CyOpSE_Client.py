@@ -3,7 +3,7 @@ from bro_log_reader import BroLogReader
 from dicttoxml import dicttoxml
 
 MY_ADDR = "192.168.1.20"
-SERVER_ADDR, SERVER_PORT = "192.168.1.216", 9999
+SERVER_ADDR, SERVER_PORT = "10.19.0.216", 9999
 LOGFILE = "/usr/local/bro/spool/wired/weird.log"
 
 def log_to_stix(file):
