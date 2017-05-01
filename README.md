@@ -12,15 +12,25 @@ Copy broctl to bin
 =======
 ## Install Bro
 sudo apt-get install cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig libgoogle-perftools-dev
+
 sudo mkdir -p /nsm/bro
+
 cd ~
+
 wget https://www.bro.org/downloads/bro-2.5.tar.gz
+
 tar -xvzf bro-2.5.tar.gz
+
 cd bro-2.5
+
 ./configure --prefix=/nsm/bro
+
 make
+
 sudo make install
+
 export PATH=/nsm/bro/bin:$PATH
+
 >>>>>>> 4646e1474d1cd4dea2650037efef2a9f147f3d39
 
 #### Modify Nodes
