@@ -9,9 +9,8 @@ sudo apt-get install cmake make gcc g++ flex git bison libpcap-dev libssl-dev py
 Install Bro
 Copy broctl to bin
 
-Using http://knowm.org/how-to-install-bro-network-security-monitor-on-ubuntu/
-
 ## Install Bro
+Using http://knowm.org/how-to-install-bro-network-security-monitor-on-ubuntu/
 sudo apt-get install cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig libgoogle-perftools-dev
 
 sudo mkdir -p /nsm/bro
@@ -47,9 +46,8 @@ sudo /nsm/bro/bin/broctl
 install
 exit
 
-Using http://knowm.org/how-to-set-up-the-elk-stack-elasticsearch-logstash-and-kibana/
-
 ## Install Oracle Java 8
+Using http://knowm.org/how-to-set-up-the-elk-stack-elasticsearch-logstash-and-kibana/
 sudo add-apt-repository -y ppa:webupd8team/java
 sudo apt-get update
 echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
@@ -82,9 +80,8 @@ network.bind_host: 0
 ## Kopf Plugin
 sudo /usr/share/elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/v2.1.2
 
-Using http://knowm.org/integrate-bro-ids-with-elk-stack/
-
 ## Integrate Bro IDS with ELK Stack
+Using http://knowm.org/integrate-bro-ids-with-elk-stack/
 cd /etc/logstash/conf.d/
 sudo wget -N https://raw.githubusercontent.com/timmolter/logstash-dfir/master/conf_files/bro/bro-conn_log.conf
 sudo wget -N https://raw.githubusercontent.com/timmolter/logstash-dfir/master/conf_files/bro/bro-dns_log.conf
