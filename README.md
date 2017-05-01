@@ -4,6 +4,11 @@
 ##### user: cyopse
 ##### pass: capstone
 
+## Clone Into CyOpSE
+sudo apt install git
+git clone https://github.com/WampaStompah/CyOpSE.git
+
+
 ## Dependencies:
 sudo apt-get install cmake make gcc g++ flex git bison libpcap-dev libssl-dev python-dev swig zlib1g-dev
 Install Bro
