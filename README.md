@@ -8,7 +8,8 @@
 sudo apt-get install cmake make gcc g++ flex git bison libpcap-dev libssl-dev python-dev swig zlib1g-dev
 Install Bro
 Copy broctl to bin
-=======
+
+
 ## Install Bro
 sudo apt-get install cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig libgoogle-perftools-dev
 
