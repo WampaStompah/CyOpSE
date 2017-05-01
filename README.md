@@ -4,8 +4,7 @@
 ##### user: cyopse
 ##### pass: capstone
 
-<<<<<<< HEAD
-Dependencies:
+## Dependencies:
 sudo apt-get install cmake make gcc g++ flex git bison libpcap-dev libssl-dev python-dev swig zlib1g-dev
 Install Bro
 Copy broctl to bin
@@ -31,7 +30,6 @@ sudo make install
 
 export PATH=/nsm/bro/bin:$PATH
 
->>>>>>> 4646e1474d1cd4dea2650037efef2a9f147f3d39
 
 #### Modify Nodes
 sudo nano /nsm/bro/etc/node.cfg
