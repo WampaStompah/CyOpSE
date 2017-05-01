@@ -1,6 +1,6 @@
 # CyOpSE 
 
-## VM
+## VM / Raspberry Pi
 ##### user: cyopse
 ##### pass: capstone
 
