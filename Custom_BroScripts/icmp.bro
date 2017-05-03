@@ -28,7 +28,7 @@ export {
 
 	# ICMP scan detection.
 	const detect_scans = T &redef;
-	const scan_threshold = 25 &redef;
+	const scan_threshold = 2 &redef;
 
 	# Analysis of connection pairs.
 	const detect_conn_pairs = F &redef;	# switch for connection pair
