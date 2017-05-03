@@ -1,5 +1,4 @@
-sudo apt install git
-git clone https://github.com/WampaStompah/CyOpSE.git
+#!/bin/sh
 
 sudo apt-get install cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig libgoogle-perftools-dev
 
