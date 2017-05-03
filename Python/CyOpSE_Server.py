@@ -1,14 +1,19 @@
 import socketserver
-from xml.dom.minidom import parseString
+#from xml.dom.minidom import parseString
 import pymysql
-import xmltodict
+#import xmltodict
+import re
+
+#General Info
+HOST = ""
+PORT = 9999
 
 # EXERCISE INFORMATION
 HIGH_VALUE_TARGETS = ["10.19.0.204", "10.19.0.199","10.19.0.155","10.19.0.201"]
 ATTACKERS = ["10.19.0.201"]
-Attacks = []
-Objectives = []
-Missions = []
+ATTACK_NAMES = []
+OBJECTIVES = []
+MISSIONS = []
 
 # MySQL INFORMATION
 """
@@ -38,10 +43,40 @@ def SQL_Connect(host, port, user, password, db, charset):
                                     password = password,
                                     db = db,
                                     charset = charset)
+
+
+        #get the Missions, Objectives, and Attacks from SQL Database
+        try:
+            att_query = 'SELECT DISTINCT Attack_Name From Attack;'
+            obj_query = 'SELECT DISTINCT Objective_Name From Objective;'
+            mis_query = 'SELECT DISTINCT Mission_Name From Mission_Set;'
+            with connector.cursor() as cursor:
+                #Attack Data
+                cursor.execute(att_query)
+                result = cursor.fetchall()
+                names = re.split('\W+', str(result))
+                ATTACK_NAMES = [x for x in names if x != ""]
+                # Objectives Data
+                cursor.execute(obj_query)
+                result = cursor.fetchall()
+                names = re.split('\W+', str(result))
+                Objectives = [x for x in names if x != ""]
+                # Mission Data
+                cursor.execute(mis_query)
+                result = cursor.fetchall()
+                names = re.split('\W+', str(result))
+                Missions = [x for x in names if x != ""]
+
+        except Exception as e:
+            print("Could not retrieve information from the sever. Please check your parameters and try again.", e)
+
+        finally:
+            connector.close()
+
     except ConnectionError:
         print("Could not establish connection to sever. Please check the parameters and try again.")
 
-    return connector
+    return ATTACK_NAMES, Objectives, Missions
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -50,6 +85,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     It is instantiated once per connection to the server, and must
     override the handle() method to implement communication to the
     client.
+    
+    ***THIS IS NOT USABLE OUTSIDE OF THIS FILE***
     """
 
     def handle(self):
@@ -58,31 +95,55 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print ("Preparing to receive " + length + " bytes from " + self.client_address[0])
         self.request.sendall(length.encode())
         self.data = self.myreceive(int(length))
+
+
         """
         self.data = self.request.recv(2048).strip().decode()
         while len(self.data) <= int(length) - 2:
             self.data += self.request.recv(10240).strip().decode()
             print(len(self.data))
         """
+
         # Uncomment these lines to see the payload coming through
-        print ("{} wrote:".format(self.client_address[0]))
-        print (parseString(self.data).toprettyxml())
+        #print ("{} wrote:".format(self.client_address[0]))
+        #print (parseString(self.data))
 
+        array_data = re.split('\t+|\n+|\n#+|\t#+',self.data.decode())
+        num_params = 0
 
-        self.data = xmltodict.parse(self.data)
-        #print(self.data['root']['item'])
+        # Find attacks within the logs
+        for param in range(len(array_data)):
+            if array_data[param] == "#types":
+                break
+            elif array_data[param] == "#fields":
+                param_start = param
+                num_params = 0
+            else:
+                num_params += 1
 
-        for i in self.data['root']['item']:
-            if i['id.orig_h']['#text'] in HIGH_VALUE_TARGETS:
-                print(i['name']['#text'] + " detected on high value target: " + i['id.orig_h']['#text'])
-            if i['id.resp_h']['#text'] in HIGH_VALUE_TARGETS:
-                print(i['name']['#text'] + " detected on high value target: " +  i['id.resp_h']['#text'])
-        
-        #for i in self.data['root']['item']:
-            #if i['id.orig_h']['#text'] in HIGH_VALUE_TARGETS and i['id.resp_h']['#text'] in ATTACKERS:
-                #print("Attack detected on high value target: " + i['id.orig_h']['#text'])
-            #if i['id.resp_h']['#text'] in HIGH_VALUE_TARGETS and i['id.orig_h']['#text'] in ATTACKERS:
-                #print("Attack detected on high value target: " + i['id.resp_h']['#text'])
+        print(str(num_params) + " parameters detected.")
+
+        for i in range(param_start, param_start + num_params+1):
+            if array_data[i] == "addl" and array_data[i+num_params*2] in ATTACK_NAMES:
+                print(array_data[i+num_params*2] + " objective complete.")
+                try:
+                    connector = pymysql.connect(host=SQL_HOST,
+                                                user=SQL_USER,
+                                                password=SQL_PASSWORD,
+                                                db=SQL_DB,
+                                                charset=SQL_CHARSET)
+
+                    sql_query = "UPDATE Attack SET Attack_Status = 'Complete' WHERE Attack_Name = '" + array_data[i+num_params*2] + "';"
+                    print(sql_query)
+                    with connector.cursor() as cursor:
+                        cursor.execute(sql_query)
+                        connector.commit()
+                except Exception as E:
+                    print("Unable to update database.", E)
+                finally:
+                    connector.close()
+                    ATTACK_NAMES.remove(array_data[i+num_params*2])
+
 
     def myreceive(self, MSGLEN):
         chunks = []
@@ -98,11 +159,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 if __name__ == "__main__":
     HOST, PORT = "", 9999
 
-    # Create the server, binding to localhost on port 9999
-    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
-
     # Connect to MqSQL DB
-    sql_conection = SQL_Connect(SQL_HOST,SQL_PORT,SQL_USER,SQL_PASSWORD,SQL_DB,SQL_CHARSET)
+    # Create the server, binding to localhost on port 9999
+    ATTACK_NAMES, OBJECTIVES, MISSIONS = SQL_Connect(SQL_HOST, SQL_PORT, SQL_USER, SQL_PASSWORD, SQL_DB, SQL_CHARSET)
+    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
