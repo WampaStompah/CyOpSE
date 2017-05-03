@@ -96,14 +96,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(length.encode())
         self.data = self.myreceive(int(length))
 
-
-        """
-        self.data = self.request.recv(2048).strip().decode()
-        while len(self.data) <= int(length) - 2:
-            self.data += self.request.recv(10240).strip().decode()
-            print(len(self.data))
-        """
-
         # Uncomment these lines to see the payload coming through
         #print ("{} wrote:".format(self.client_address[0]))
         #print (parseString(self.data))
@@ -124,25 +116,27 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print(str(num_params) + " parameters detected.")
 
         for i in range(param_start, param_start + num_params+1):
-            if array_data[i] == "addl" and array_data[i+num_params*2] in ATTACK_NAMES:
-                print(array_data[i+num_params*2] + " objective complete.")
-                try:
-                    connector = pymysql.connect(host=SQL_HOST,
-                                                user=SQL_USER,
-                                                password=SQL_PASSWORD,
-                                                db=SQL_DB,
-                                                charset=SQL_CHARSET)
+            if array_data[i] == "addl":
+                    for x in range(len(array_data)//num_params - 1):
+                        if array_data[i+num_params*x] in ATTACK_NAMES:
+                            print(array_data[i+num_params*x] + " objective complete.")
+                            try:
+                                connector = pymysql.connect(host=SQL_HOST,
+                                                            user=SQL_USER,
+                                                            password=SQL_PASSWORD,
+                                                            db=SQL_DB,
+                                                            charset=SQL_CHARSET)
 
-                    sql_query = "UPDATE Attack SET Attack_Status = 'Complete' WHERE Attack_Name = '" + array_data[i+num_params*2] + "';"
-                    print(sql_query)
-                    with connector.cursor() as cursor:
-                        cursor.execute(sql_query)
-                        connector.commit()
-                except Exception as E:
-                    print("Unable to update database.", E)
-                finally:
-                    connector.close()
-                    ATTACK_NAMES.remove(array_data[i+num_params*2])
+                                sql_query = "UPDATE Attack SET Attack_Status = 'Complete' WHERE Attack_Name = '" + array_data[i+num_params*x] + "';"
+                                print(sql_query)
+                                with connector.cursor() as cursor:
+                                    cursor.execute(sql_query)
+                                    connector.commit()
+                            except Exception as E:
+                                print("Unable to update database.", E)
+                            finally:
+                                connector.close()
+                                ATTACK_NAMES.remove(array_data[i+num_params*x])
 
 
     def myreceive(self, MSGLEN):
@@ -162,6 +156,7 @@ if __name__ == "__main__":
     # Connect to MqSQL DB
     # Create the server, binding to localhost on port 9999
     ATTACK_NAMES, OBJECTIVES, MISSIONS = SQL_Connect(SQL_HOST, SQL_PORT, SQL_USER, SQL_PASSWORD, SQL_DB, SQL_CHARSET)
+    print(ATTACK_NAMES)
     server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 
     # Activate the server; this will keep running until you
