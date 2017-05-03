@@ -92,7 +92,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         length = self.request.recv(100).strip().decode()
-        print ("Preparing to receive " + length + " bytes from " + self.client_address[0])
+        #print ("Preparing to receive " + length + " bytes from " + self.client_address[0])
         self.request.sendall(length.encode())
         self.data = self.myreceive(int(length))
 
@@ -102,6 +102,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         array_data = re.split('\t+|\n+|\n#+|\t#+',self.data.decode())
         num_params = 0
+        param_start = 0
 
         # Find attacks within the logs
         for param in range(len(array_data)):
@@ -113,9 +114,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             else:
                 num_params += 1
 
-        print(str(num_params) + " parameters detected.")
+        #print(str(num_params) + " parameters detected.")
 
-        for i in range(param_start, param_start + num_params+1):
+        for i in range(param_start, param_start + num_params):
             if array_data[i] == "addl":
                     for x in range(len(array_data)//num_params - 1):
                         if array_data[i+num_params*x] in ATTACK_NAMES:
@@ -156,7 +157,6 @@ if __name__ == "__main__":
     # Connect to MqSQL DB
     # Create the server, binding to localhost on port 9999
     ATTACK_NAMES, OBJECTIVES, MISSIONS = SQL_Connect(SQL_HOST, SQL_PORT, SQL_USER, SQL_PASSWORD, SQL_DB, SQL_CHARSET)
-    print(ATTACK_NAMES)
     server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 
     # Activate the server; this will keep running until you
