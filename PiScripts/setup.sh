@@ -17,8 +17,6 @@ export PATH=/nsm/bro/bin:$PATH
 
 
 sudo /nsm/bro/bin/broctl
-install
-exit
 
 sudo add-apt-repository -y ppa:webupd8team/java
 sudo apt-get update
